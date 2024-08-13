@@ -7,12 +7,12 @@ env:
   IMAGE_TAGS: ${{ github.sha }}
 
 jobs:
-  push-quay:
+  build:
     name: Build container image
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout Push to Registry action
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install qemu dependency
