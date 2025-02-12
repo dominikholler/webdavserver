@@ -1,4 +1,4 @@
-FROM docker.io/library/golang:1.23-alpine as builder
+FROM docker.io/library/golang:1.24-alpine as builder
 #FROM registry.redhat.io/rhel9/go-toolset:1.20 as builder
 WORKDIR /opt/app-root/src/
 
