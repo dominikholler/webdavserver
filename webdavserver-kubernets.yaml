@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: webavserver
+spec:
+  serviceName: "webdavserver"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webdavserver
+  template:
+    metadata:
+      labels:
+        app: webdavserver
+    spec:
+      securityContext:
+        fsGroup: 1001
+      containers:
+      - name: webdavserver
+        image: quay.io/dominikholler/webdavserver
+        ports:
+        - containerPort: 8080
+          name: web
+        volumeMounts:
+        - name: www
+          mountPath: /srv/webdav
+  volumeClaimTemplates:
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: webdavserver-service
+  labels:
+    app: webdavserver
+spec:
+  externalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  internalTrafficPolicy: Cluster
+  type: LoadBalancer
+  selector:
+    app: webdavserver
+
