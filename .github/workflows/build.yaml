@@ -1,6 +1,12 @@
 name: Build container image
 on:
   pull_request:
+  push:
+    tags:
+      - '*'
+
+env:
+  IMAGE_NAME: ${{ github.event.repository.name }}
 
 jobs:
   build:
@@ -11,7 +17,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
       - name: Build Image
-        uses: ./.github/actions/build-image
+        id: build_image
+        uses: redhat-actions/buildah-build@v2
         with:
-          image_tags: ${{ github.sha }}
+          image: ${{ env.IMAGE_NAME }}
+          tags: ${{ github.event_name == 'pull_request' && github.sha || github.ref_name }}
+          archs: amd64, arm64, ppc64le, riscv64, s390x
+          containerfiles: |
+            ./Dockerfile
+
+      - name: Push To Registry
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        uses: redhat-actions/push-to-registry@v2
+        id: push_image
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ vars.IMAGE_REGISTRY }}/${{ vars.IMAGE_NAMESPACE }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
