@@ -3,8 +3,12 @@ on:
   pull_request:
 
 jobs:
-  call-reusable-build:
-    uses: ./.github/workflows/reusable-build.yaml
-    with:
-      image_tags: ${{ github.sha }}
-      push_image: false
+  build:
+    name: Build container image
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Build Image
+        uses: ./.github/actions/build-image
+        with:
+          image_tags: ${{ github.sha }}

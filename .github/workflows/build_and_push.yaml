@@ -5,9 +5,23 @@ on:
       - '*'
 
 jobs:
-  call-reusable-build:
-    uses: ./.github/workflows/reusable-build.yaml
-    with:
-      image_tags: ${{ github.ref_name }}
-      push_image: true
-    secrets: inherit
+  push-quay:
+    name: Build container image
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Build Image
+        id: build_image
+        uses: ./.github/actions/build-image
+        with:
+          image_tags: ${{ github.ref_name }}
+
+      - name: Push To Registry
+        uses: redhat-actions/push-to-registry@v2
+        id: push_image
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ vars.IMAGE_REGISTRY }}/${{ vars.IMAGE_NAMESPACE }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
