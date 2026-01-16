@@ -1,5 +1,5 @@
 name: Build Image Action
-description: Shared steps to checkout, setup qemu, and build container image
+description: Shared steps to setup qemu and build container image
 inputs:
   image_tags:
     description: Tags for the built image
@@ -15,9 +15,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-
     - name: Install qemu dependency
       shell: bash
       run: |
