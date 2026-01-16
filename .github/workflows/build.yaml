@@ -2,31 +2,9 @@ name: Build container image
 on:
   pull_request:
 
-env:
-  IMAGE_NAME: ${{ github.event.repository.name }}
-  IMAGE_TAGS: ${{ github.sha }}
-
 jobs:
-  build:
-    name: Build container image
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install qemu dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-
-      - name: Build Image
-        id: build_image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ env.IMAGE_NAME }}
-          tags: ${{ env.IMAGE_TAGS }}
-          archs: amd64, arm64, ppc64le, riscv64, s390x
-          containerfiles: |
-            ./Dockerfile
-
+  call-reusable-build:
+    uses: ./.github/workflows/reusable-build.yaml
+    with:
+      image_tags: ${{ github.sha }}
+      push_image: false
