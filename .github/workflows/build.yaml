@@ -2,6 +2,8 @@ name: Build container image
 on:
   pull_request:
   push:
+    branches:
+      - main
     tags:
       - '*'
 
@@ -24,13 +26,13 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ github.event.repository.name }}
-          tags: ${{ github.event_name == 'pull_request' && github.sha || github.ref_name }}
+          tags: ${{ github.event_name == 'pull_request' && github.sha || (github.ref_name == 'main' && 'latest' || github.ref_name) }}
           archs: amd64, arm64, ppc64le, riscv64, s390x
           containerfiles: |
             ./Dockerfile
 
       - name: Push To Registry
-        if: github.event_name == 'push' && github.ref_type == 'tag'
+        if: github.event_name == 'push' && (github.ref_type == 'tag' || github.ref_name == 'main')
         uses: redhat-actions/push-to-registry@v2
         id: push_image
         with:
