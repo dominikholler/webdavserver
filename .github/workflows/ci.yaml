@@ -1,0 +1,34 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Golang
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Install gofumpt
+        run: go install mvdan.cc/gofumpt@latest
+
+      - name: Run go mod tidy
+        run: go mod tidy
+
+      - name: Run gofumpt against code
+        run: gofumpt -l -w .
+
+      - name: Ensure no modified or uncommitted files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Modified or uncommitted files found"
+            git status --porcelain
+            exit 1
+          fi
