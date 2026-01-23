@@ -22,13 +22,13 @@ jobs:
       - name: Run go mod tidy
         run: go mod tidy
 
-      - name: Run go mod vendor
-        run: go mod vendor
-
       - name: Run gofumpt against code
         run: gofumpt -l -w .
 
       - name: Ensure no modified or uncommitted files
         run: |
-          git add .
-          git diff --staged --exit-code
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Modified or uncommitted files found"
+            git status --porcelain
+            exit 1
+          fi
