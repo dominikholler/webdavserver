@@ -28,5 +28,5 @@ func main() {
 	}
 
 	log.Println("serving", webdavDir, "on", address)
-	http.ListenAndServe(address, handler)
+	log.Fatal(http.ListenAndServe(address, handler))
 }
