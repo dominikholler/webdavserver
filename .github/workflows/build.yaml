@@ -33,7 +33,7 @@ jobs:
 
       - name: Push To Registry
         if: github.event_name == 'push' && (github.ref_type == 'tag' || github.ref_name == 'main')
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         id: push_image
         with:
           image: ${{ steps.build_image.outputs.image }}
