@@ -23,7 +23,7 @@ jobs:
 
       - name: Build Image
         id: build_image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: ${{ github.event.repository.name }}
           tags: ${{ github.event_name == 'pull_request' && github.sha || (github.ref_name == 'main' && 'latest' || github.ref_name) }}
