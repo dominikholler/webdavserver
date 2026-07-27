@@ -31,6 +31,15 @@ jobs:
           containerfiles: |
             ./Dockerfile
 
+      - name: Test container image
+        run: |
+          podman run -d --name webdav-test -p 8080:8080 localhost/${{ steps.build_image.outputs.image }}:${{ steps.build_image.outputs.tags }}
+          for i in $(seq 1 10); do curl -sf http://localhost:8080/ > /dev/null && break || sleep 1; done
+          curl -sf -T /etc/hostname http://localhost:8080/testfile
+          curl -sf http://localhost:8080/testfile -o /tmp/downloaded
+          diff /etc/hostname /tmp/downloaded
+          podman rm -f webdav-test
+
       - name: Push To Registry
         if: github.event_name == 'push' && (github.ref_type == 'tag' || github.ref_name == 'main')
         uses: redhat-actions/push-to-registry@v3
